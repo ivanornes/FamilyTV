@@ -1,0 +1,20 @@
+# Configuración privada (críos, calendario familiar, credenciales)
+js/config.local.js
+
+# Salidas de compilación y estado de la extensión Tizen
+Debug/
+Release/
+*.wgt
+.tizen-rds/
+.sign/
+*.p12
+
+# Editor / sistema
+.vscode/
+.DS_Store
+
+# Restos locales
+_plantilla_original/
+main.js
+iconOLD.png
+img/ps5.png
