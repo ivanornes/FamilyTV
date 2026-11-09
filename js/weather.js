@@ -2,7 +2,7 @@
  * Pronóstico del tiempo para vestir a los críos (Open-Meteo: gratis, sin clave).
  *
  *   Weather.start(onChange)  descarga ya y cada 30 min; llama a onChange al llegar datos
- *   Weather.forDay(date)     -> { code, icon, max, min, rain, atLeave, clothes } | null
+ *   Weather.forDay(date)     -> { code, icon, max, min, rain, atLeave, clothes, hours } | null
  *
  * "rain" es la probabilidad máxima de lluvia entre las 7 y las 20 h (lo que pilla
  * a los críos), no la del día completo. "atLeave" es la temperatura a la hora de
@@ -25,7 +25,7 @@
     return 'https://api.open-meteo.com/v1/forecast' +
       '?latitude=' + wcfg.lat + '&longitude=' + wcfg.lon +
       '&daily=weather_code,temperature_2m_max,temperature_2m_min' +
-      '&hourly=temperature_2m,precipitation_probability' +
+      '&hourly=temperature_2m,precipitation_probability,weather_code' +
       '&timezone=auto&forecast_days=3';
   }
 
@@ -82,13 +82,23 @@
     if (i < 0) { return null; }
 
     var leaveH = Number(((cfg.departure && cfg.departure.leave) || '08:30').split(':')[0]);
-    var atLeave = null, rain = 0;
+    var atLeave = null, rain = 0, hours = [];
+    var slots = wcfg.hours || [8, 11, 14, 17, 20];
+    var hcodes = data.hourly.weather_code || [];
     var times = data.hourly.time;
     for (var h = 0; h < times.length; h++) {
       if (times[h].indexOf(key) !== 0) { continue; }
       var hour = Number(times[h].substr(11, 2));
       if (hour === leaveH) { atLeave = data.hourly.temperature_2m[h]; }
       if (hour >= 7 && hour <= 20) { rain = Math.max(rain, data.hourly.precipitation_probability[h] || 0); }
+      if (slots.indexOf(hour) >= 0) {
+        hours.push({
+          hour: hour,
+          temp: Math.round(data.hourly.temperature_2m[h]),
+          rain: data.hourly.precipitation_probability[h] || 0,
+          icon: hcodes[h] === undefined ? '' : icon(hcodes[h])
+        });
+      }
     }
     var max = Math.round(data.daily.temperature_2m_max[i]);
     var min = Math.round(data.daily.temperature_2m_min[i]);
@@ -102,7 +112,8 @@
       rain: rain,
       rainy: rain >= (wcfg.rainFrom || 40),
       atLeave: atLeave === null ? null : Math.round(atLeave),
-      clothes: clothesFor(ref)
+      clothes: clothesFor(ref),
+      hours: hours
     };
   }
 

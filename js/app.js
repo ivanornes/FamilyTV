@@ -25,8 +25,11 @@
 
   /* ---------- Aspecto (deslizador de cristal) ---------- */
 
+  function sourcesOnBoard() { return (cfg.ui || {}).sourcesOnBoard !== false; }
+
   function applyUi() {
     var ui = cfg.ui || {};
+    document.body.classList.toggle('no-sources', !sourcesOnBoard());
     var t = Math.max(0, Math.min(1, ui.transparency == null ? 0.55 : ui.transparency));
     var root = document.documentElement.style;
     // Relleno del cristal: más transparencia = menos blanco y menos oscurecido del fondo.
@@ -334,7 +337,7 @@
       '<div class="today-head"><span class="today-title">Hoy</span>' +
       '<span class="today-count">' + done + ' de ' + total + '</span></div>' +
       '<div class="today-bar"><i style="width:' + pct + '%"></i></div>' +
-      '<ul class="today-list">' + (items.length ? items.slice(0, 2).map(function (it) {
+      '<ul class="today-list">' + (items.length ? items.slice(0, sourcesOnBoard() ? 2 : 3).map(function (it) {
         return '<li><span class="today-icon">' + it.t.icon + '</span>' +
                '<span class="today-label">' + it.t.label + '</span>' +
                '<span class="today-who">' + it.kids.join(', ') + '</span></li>';
@@ -489,24 +492,54 @@
     renderToday();
     if (global.Departure) { renderDeparture(); }
     renderWeather();
-    Nav.restore(focusedId || 'src-' + cfg.sources[0].id);   // por defecto, la primera entrada
+    Nav.restore(focusedId || defaultFocus());
   }
 
   /* ---------- Tiempo ----------
    * Mañana: el de hoy. Noche: el de mañana, para dejar la ropa preparada. */
 
   function renderWeather() {
-    var el = $('#weather');
-    if (!el || !global.Weather || !Weather.enabled()) { return; }
+    var pill = $('#weather'), card = $('#forecast');
+    if (!pill || !global.Weather || !Weather.enabled()) { return; }
     var tomorrow = currentPeriod() === 'evening';
     var day = new Date(state.date.getFullYear(), state.date.getMonth(), state.date.getDate() + (tomorrow ? 1 : 0));
     var w = Weather.forDay(day);
-    document.body.classList.toggle('has-weather', !!w);
-    if (!w) { el.hidden = true; return; }
+    var big = !sourcesOnBoard();
+    // Con la tarjeta grande la cabecera no lleva pastilla (y el reloj recupera su tamaño).
+    document.body.classList.toggle('has-weather', !!w && !big);
+    pill.hidden = true;
+    card.hidden = true;
+    if (!w) { return; }
+
+    if (big) {
+      card.innerHTML =
+        '<div class="fc-now">' +
+          '<span class="fc-icon">' + w.icon + '</span>' +
+          '<span class="fc-temps">' +
+            '<span class="fc-day">' + (tomorrow ? 'Mañana' : 'Hoy') + '</span>' +
+            '<span><b>' + w.max + '°</b><i>' + w.min + '°</i></span>' +
+          '</span>' +
+        '</div>' +
+        '<div class="fc-wear">' +
+          (w.clothes ? '<span class="fc-item"><span class="fc-emoji">' + w.clothes.icon + '</span><span class="fc-label">' + w.clothes.label + '</span></span>' : '') +
+          (w.rainy ? '<span class="fc-item wet"><span class="fc-emoji">☔</span><span class="fc-label">Chubasquero</span></span>' : '') +
+        '</div>' +
+        '<div class="fc-hours">' + (w.hours || []).map(function (h) {
+          return '<span class="fc-hour">' +
+            '<span class="fc-h">' + h.hour + ':00</span>' +
+            '<span class="fc-hi">' + (h.icon || '') + '</span>' +
+            '<span class="fc-ht">' + h.temp + '°</span>' +
+            '<span class="fc-hr' + (h.rain >= (cfg.weather.rainFrom || 40) ? ' wet' : '') + '">💧' + h.rain + '%</span>' +
+          '</span>';
+        }).join('') + '</div>';
+      card.hidden = false;
+      return;
+    }
+
     var wear = [];
     if (w.clothes) { wear.push(w.clothes.icon + ' ' + w.clothes.label); }
     if (w.rainy) { wear.push('☔ Chubasquero'); }
-    el.innerHTML =
+    pill.innerHTML =
       '<span class="w-icon">' + w.icon + '</span>' +
       '<span class="w-main">' +
         '<span class="w-temps">' + (tomorrow ? '<em>Mañana</em>' : '') +
@@ -514,7 +547,14 @@
           '<span class="w-rain' + (w.rainy ? ' wet' : '') + '">💧' + w.rain + '%</span></span>' +
         '<span class="w-wear">' + wear.join(' · ') + '</span>' +
       '</span>';
-    el.hidden = false;
+    pill.hidden = false;
+  }
+
+  // Por defecto, la primera entrada; sin entradas en el panel, la primera tarea.
+  function defaultFocus() {
+    if (sourcesOnBoard()) { return 'src-' + cfg.sources[0].id; }
+    var t = document.querySelector('.task[data-focus]');
+    return t ? t.getAttribute('data-focus') : null;
   }
 
   function celebrate(kid) {

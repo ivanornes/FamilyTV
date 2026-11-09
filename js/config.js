@@ -42,7 +42,10 @@ window.APP_CONFIG = {
     motion: true,
     // 'auto': modo ligero en la tele y completo en el navegador · 'lite' · 'full'
     // Ligero = fondo quieto, desenfoque sólo en paneles grandes, sin balanceo 3D.
-    performance: 'auto'
+    performance: 'auto',
+    // false: el panel no muestra los botones de entradas (se siguen cambiando con
+    // los botones de colores o 1-2-3 del mando) y su hueco lo ocupa el tiempo.
+    sourcesOnBoard: false
   },
 
   smartthings: {
@@ -81,6 +84,7 @@ window.APP_CONFIG = {
     lat: 40.4168,
     lon: -3.7038,
     rainFrom: 40,
+    hours: [8, 11, 14, 17, 20],   // franja horaria de la tarjeta grande
     clothes: [
       { upTo: 9,  icon: '🧣', label: 'Abrigo' },
       { upTo: 15, icon: '🧥', label: 'Chaqueta' },

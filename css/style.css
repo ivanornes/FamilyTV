@@ -535,3 +535,31 @@ body.watching .watching-hint { display: flex; animation: hintfade 4.5s var(--eas
 .has-weather .departure { width: 500px; margin: 0 24px 4px; }
 .has-weather.has-departure #clock { font-size: 88px; letter-spacing: -2.5px; }
 .has-weather .departure { margin: 0 18px 4px; }
+
+/* Calendario: icono solo, sin etiqueta que se despliega con el foco. */
+#cal-btn.focused .hb-label { max-width: 0; opacity: 0; margin-left: 0; }
+
+/* ---------- Panel sin entradas: el tiempo ocupa su hueco ---------- */
+.no-sources .sources { display: none; }
+.no-sources .shelf { height: 196px; }
+.no-sources .today { margin-left: 32px; height: 196px; }
+.forecast[hidden] { display: none; }
+.forecast { width: 1100px; height: 196px; border-radius: var(--radius-l); padding: 0 34px; display: flex; align-items: center; flex: none; }
+.fc-now { display: flex; align-items: center; }
+.fc-icon { font-size: 104px; line-height: 1; }
+.fc-temps { display: flex; flex-direction: column; margin-left: 18px; line-height: 1; }
+.fc-day { font-size: 22px; font-weight: 700; color: var(--text-2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.fc-temps b { font-size: 76px; font-weight: 800; letter-spacing: -2px; }
+.fc-temps i { font-style: normal; font-size: 40px; font-weight: 600; color: var(--text-2); margin-left: 10px; }
+.fc-wear { display: flex; gap: 18px; margin-left: 30px; padding-left: 28px; border-left: 2px solid rgba(255,255,255,.14); }
+.fc-item { display: flex; flex-direction: column; align-items: center; min-width: 120px; }
+.fc-emoji { font-size: 76px; line-height: 1; }
+.fc-label { font-size: 25px; font-weight: 800; margin-top: 10px; white-space: nowrap; }
+.fc-item.wet .fc-label { color: #64d2ff; }
+.fc-hours { display: flex; margin-left: auto; padding-left: 24px; gap: 2px; }
+.fc-hour { display: flex; flex-direction: column; align-items: center; width: 68px; line-height: 1.15; }
+.fc-h { font-size: 19px; color: var(--text-2); font-weight: 600; }
+.fc-hi { font-size: 32px; margin: 4px 0 2px; }
+.fc-ht { font-size: 26px; font-weight: 800; }
+.fc-hr { font-size: 17px; color: var(--text-2); font-weight: 600; }
+.fc-hr.wet { color: #64d2ff; font-weight: 800; }

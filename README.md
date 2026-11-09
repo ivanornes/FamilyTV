@@ -119,7 +119,7 @@ Detalles: se actualiza cada 15 min y guarda la última copia para funcionar sin 
 
 ## Tiempo
 
-Junto al botón del calendario: icono, máxima y mínima, probabilidad de lluvia y qué ropa poner.
+Con `ui.sourcesOnBoard: false` (por defecto) el panel no muestra los botones de entradas y su hueco lo ocupa una tarjeta grande del tiempo: icono, máxima y mínima, la prenda en grande para los críos, chubasquero si va a llover y la franja de `weather.hours` (8, 11, 14, 17 y 20 h). Las entradas se siguen cambiando con los botones de colores, 1-2-3 o la tecla 8. Con `sourcesOnBoard: true` vuelven los botones y el tiempo pasa a una pastilla en la cabecera, junto al calendario.
 - Por la mañana es el tiempo de hoy; por la noche, el de **mañana**, para dejar la ropa preparada.
 - La ropa sale de la temperatura a la hora de salir de casa (`departure.leave`), con los umbrales de `weather.clothes` en `config.js`.
 - La lluvia es la probabilidad máxima entre las 7 y las 20 h. A partir de `weather.rainFrom` (40 %) añade "☔ Chubasquero".
