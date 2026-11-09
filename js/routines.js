@@ -25,10 +25,13 @@
 
   function tasksFor(kid, period, date) {
     var day = date.getDay();
+    var today = ymd(date);
     return (cfg.routines[period] || []).filter(function (t) {
       var dayOk = !t.days || t.days.indexOf(day) >= 0;
       var kidOk = !t.kids || t.kids.indexOf(kid.id) >= 0;
-      return dayOk && kidOk;
+      // from / until: 'YYYY-MM-DD', ambos incluidos (p. ej. una actividad de un trimestre).
+      var dateOk = (!t.from || today >= t.from) && (!t.until || today <= t.until);
+      return dayOk && kidOk && dateOk;
     });
   }
 

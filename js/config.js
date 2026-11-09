@@ -7,6 +7,7 @@
  *
  * Días de la semana (como Date.getDay()): 0=domingo, 1=lunes ... 6=sábado.
  * Una tarea sin "days" aparece todos los días; sin "kids", para todos los críos.
+ * "from" / "until" ('YYYY-MM-DD', incluidos) la limitan a un periodo, p. ej. un trimestre.
  * "order" es la orden directa (imperativo) que ven los críos en modo focusMode.
  */
 window.APP_CONFIG = {
