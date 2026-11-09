@@ -42,6 +42,7 @@ files:
   - js/routines.js
   - js/sources.js
   - js/syllables.js
+  - js/weather.js
   - img/appletv-3d.png
   - img/consola.png
   - img/ps5-3d-v2.png

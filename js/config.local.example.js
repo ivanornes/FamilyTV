@@ -10,6 +10,11 @@
   // Calendario familiar (enlace público iCal; quien lo tenga puede leerlo).
   c.calendar.feeds.unshift({ name: 'Familia', url: 'webcal://pXX-caldav.icloud.com/published/2/TU-ENLACE' });
 
+  // Ubicación de casa para el tiempo.
+  c.weather.place = 'Tu pueblo';
+  c.weather.lat = 43.26;
+  c.weather.lon = -2.93;
+
   // Críos de la casa.
   c.kids = [
     { id: 'mikel', name: 'Mikel', avatar: '🦊', gradient: ['#64d2ff', '#0a84ff'], syllables: true },

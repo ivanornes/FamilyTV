@@ -518,3 +518,20 @@ body.watching .watching-hint { display: flex; animation: hintfade 4.5s var(--eas
 .picker-opt.focused.live .picker-state { color: #1a8f3c; }
 .hdmi-picker .picker-sheet { background: rgba(26,26,38,.97); -webkit-backdrop-filter: none; backdrop-filter: none; }
 .picker-help { font-size: 22px; color: var(--text-2); margin-top: 32px; }
+
+/* ---------- Tiempo (cabecera) ---------- */
+.weather { display: flex; align-items: center; height: 76px; padding: 0 24px 0 16px; border-radius: 999px; margin: 0 14px; }
+.weather[hidden] { display: none; }
+.w-icon { font-size: 44px; line-height: 1; margin-right: 12px; }
+.w-main { display: flex; flex-direction: column; justify-content: center; line-height: 1.1; }
+.w-temps { display: flex; align-items: baseline; white-space: nowrap; }
+.w-temps em { font-style: normal; font-size: 20px; font-weight: 600; color: var(--text-2); margin-right: 8px; text-transform: uppercase; letter-spacing: .5px; }
+.w-temps b { font-size: 30px; font-weight: 800; }
+.w-temps i { font-style: normal; font-size: 24px; font-weight: 600; color: var(--text-2); margin-left: 6px; }
+.w-rain { font-size: 22px; font-weight: 600; color: var(--text-2); margin-left: 12px; }
+.w-rain.wet { color: #64d2ff; font-weight: 800; }
+.w-wear { font-size: 20px; font-weight: 600; color: var(--text-2); white-space: nowrap; margin-top: 2px; }
+/* Con el tiempo en la cabecera, la cuenta atrás se estrecha para que quepa el reloj. */
+.has-weather .departure { width: 500px; margin: 0 24px 4px; }
+.has-weather.has-departure #clock { font-size: 88px; letter-spacing: -2.5px; }
+.has-weather .departure { margin: 0 18px 4px; }

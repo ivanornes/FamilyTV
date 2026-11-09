@@ -117,6 +117,14 @@ Mientras no haya enlace, se ven datos de ejemplo (aviso en amarillo).
 
 Detalles: se actualiza cada 15 min y guarda la última copia para funcionar sin red. Soporta eventos recurrentes (semanales, mensuales, anuales), excepciones, eventos movidos y cancelados. Las horas con zona horaria se toman como hora local de la tele.
 
+## Tiempo
+
+Junto al botón del calendario: icono, máxima y mínima, probabilidad de lluvia y qué ropa poner.
+- Por la mañana es el tiempo de hoy; por la noche, el de **mañana**, para dejar la ropa preparada.
+- La ropa sale de la temperatura a la hora de salir de casa (`departure.leave`), con los umbrales de `weather.clothes` en `config.js`.
+- La lluvia es la probabilidad máxima entre las 7 y las 20 h. A partir de `weather.rainFrom` (40 %) añade "☔ Chubasquero".
+- Datos de [Open-Meteo](https://open-meteo.com) (gratis, sin clave), cada 30 min. Sin red se ve la última descarga. La ubicación de casa va en `config.local.js`.
+
 ## Modo lámpara
 
 Botón **🕯️ Lámpara** en la cabecera (o tecla **0**). La pantalla se convierte en una luz cálida y tenue para leer en el salón:

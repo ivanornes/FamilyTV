@@ -2,7 +2,7 @@
 <widget xmlns="http://www.w3.org/ns/widgets"
         xmlns:tizen="http://tizen.org/ns/widgets"
         id="http://ornes.family/CasaTV"
-        version="1.0.2"
+        version="1.0.3"
         viewmodes="maximized">
 
     <!-- package id: exactamente 10 caracteres alfanuméricos -->
@@ -25,6 +25,8 @@
     <!-- Calendario (feeds iCal de iCloud y Google) -->
     <access origin="https://calendar.google.com" subdomains="true"/>
     <access origin="https://icloud.com" subdomains="true"/>
+    <!-- Tiempo -->
+    <access origin="https://api.open-meteo.com" subdomains="true"/>
 
     <tizen:setting screen-orientation="landscape"
                    context-menu="disable"

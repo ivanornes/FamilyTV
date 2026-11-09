@@ -488,7 +488,33 @@
     });
     renderToday();
     if (global.Departure) { renderDeparture(); }
+    renderWeather();
     Nav.restore(focusedId || 'src-' + cfg.sources[0].id);   // por defecto, la primera entrada
+  }
+
+  /* ---------- Tiempo ----------
+   * Mañana: el de hoy. Noche: el de mañana, para dejar la ropa preparada. */
+
+  function renderWeather() {
+    var el = $('#weather');
+    if (!el || !global.Weather || !Weather.enabled()) { return; }
+    var tomorrow = currentPeriod() === 'evening';
+    var day = new Date(state.date.getFullYear(), state.date.getMonth(), state.date.getDate() + (tomorrow ? 1 : 0));
+    var w = Weather.forDay(day);
+    document.body.classList.toggle('has-weather', !!w);
+    if (!w) { el.hidden = true; return; }
+    var wear = [];
+    if (w.clothes) { wear.push(w.clothes.icon + ' ' + w.clothes.label); }
+    if (w.rainy) { wear.push('☔ Chubasquero'); }
+    el.innerHTML =
+      '<span class="w-icon">' + w.icon + '</span>' +
+      '<span class="w-main">' +
+        '<span class="w-temps">' + (tomorrow ? '<em>Mañana</em>' : '') +
+          '<b>' + w.max + '°</b><i>' + w.min + '°</i>' +
+          '<span class="w-rain' + (w.rainy ? ' wet' : '') + '">💧' + w.rain + '%</span></span>' +
+        '<span class="w-wear">' + wear.join(' · ') + '</span>' +
+      '</span>';
+    el.hidden = false;
   }
 
   function celebrate(kid) {
@@ -597,6 +623,7 @@
     requestAnimationFrame(function () { document.body.classList.add('ready'); });
     Calendar.onChange(function () { renderToday(); CalView.refresh(); });
     Calendar.start();
+    if (global.Weather) { Weather.start(renderWeather); }
   }
 
   document.addEventListener('DOMContentLoaded', init);

@@ -67,6 +67,27 @@ window.APP_CONFIG = {
     ]
   },
 
+  /* ---------- Tiempo (Open-Meteo, sin clave) ----------
+   * Por la mañana muestra el día de hoy; por la noche, el de mañana (para
+   * dejar la ropa preparada). La ropa se elige con la temperatura a la hora de
+   * salir de casa (departure.leave): la primera fila cuyo upTo la cubra.
+   * rainFrom: % de lluvia (7–20 h) a partir del cual se avisa del chubasquero.
+   * La ubicación de casa va en config.local.js; aquí, una de ejemplo.
+   */
+  weather: {
+    enabled: true,
+    place: 'Madrid',
+    lat: 40.4168,
+    lon: -3.7038,
+    rainFrom: 40,
+    clothes: [
+      { upTo: 9,  icon: '🧣', label: 'Abrigo' },
+      { upTo: 15, icon: '🧥', label: 'Chaqueta' },
+      { upTo: 21, icon: '👕', label: 'Sudadera' },
+      {           icon: '🩳', label: 'Manga corta' }
+    ]
+  },
+
   /* ---------- Cuenta atrás para salir de casa ----------
    * Sólo por la mañana y en los días indicados (1=lunes … 5=viernes).
    * start:   empieza la cuenta (se enciende la luz de los críos)
