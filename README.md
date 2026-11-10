@@ -1,167 +1,244 @@
-# Casa TV — app Tizen para el Samsung del salón
+# Casa TV
 
-Una pantalla de inicio para la tele con dos funciones:
+**A family dashboard for Samsung Tizen TVs.** It turns the living-room TV into a morning-and-evening routine board for the kids, with a leave-the-house countdown, a weather card that says what to wear, the family calendar and a warm reading lamp. Your Apple TV, console and set-top box stay one button away on the remote.
 
-1. **Entradas**: Apple TV, PS5 y Euskaltel con un botón (o con las teclas roja / verde / amarilla, o 1-2-3).
-2. **Rutinas**: tablero de mañana y de noche por crío, que se marca con OK y se reinicia solo cada día.
+![Morning dashboard: countdown to leave, weather with what to wear, and each kid's routine](docs/screenshots/morning.jpg)
 
-## El montaje de casa
+> The interface is in Spanish because that is the language of the house. Strings live in the JS and CSS files; there is no i18n layer yet.
 
-| Equipo | Conexión | Notas |
-|---|---|---|
-| TV Samsung QN85D 75" (2024) | — | Tizen 8 de fábrica; con el firmware 2130.0 probablemente Tizen 9 (inferido, no comprobado). 4× HDMI 2.1 con ALLM/VRR/144 Hz |
-| Apple TV | HDMI directo a la TV | |
-| PS5 | HDMI directo a la TV | Necesita Modo Juego / VRR / 120 Hz → cambio vía SmartThings |
-| Deco Euskaltel | HDMI directo a la TV | |
-| Marantz NR1200 | Puerto (e)ARC de la TV | Sólo sonido. Es HDMI 2.0b (4K60) y estéreo: ponerlo en medio no aporta nada y en la práctica falla |
+---
 
-La app no controla el Marantz: con HDMI-CEC (Anynet+) se enciende y pasa a "TV Audio" solo. Si algún día eso falla, el NR1200 acepta control por red (activar "Network Control → Always On") y se podría añadir.
+## Contents
 
-## Estructura
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Getting started (in a browser)](#getting-started-in-a-browser)
+- [Install on a Samsung TV](#install-on-a-samsung-tv)
+- [Configuration](#configuration)
+- [Remote control](#remote-control)
+- [How it works](#how-it-works)
+- [Limitations](#limitations)
+- [Credits](#credits)
 
-```
-FamilyTV/
-├── config.xml            manifiesto Tizen (privilegios, id del paquete)
-├── index.html, icon.png
-├── fonts/                Inter (libre, OFL): sustituto de San Francisco, que no se puede empaquetar fuera de Apple
-├── img/                  renders 3D de las entradas (PNG) + tools/render para regenerarlos
-├── css/style.css         UI a 1920×1080
-├── js/config.js          ← configuración pública con valores de ejemplo: HDMI, vía de cambio, tareas, horarios
-├── js/config.local.js    ← lo tuyo: críos, calendario familiar, credenciales (NO va al repo)
-├── js/config.local.example.js ← plantilla del anterior
-├── js/sources.js         cambio de entrada: tvwindow / SmartThings, elegido por entrada
-├── js/routines.js        lógica de rutinas + persistencia (localStorage por día/franja)
-├── js/nav.js             navegación espacial con las flechas del mando
-├── js/app.js             render, teclas del mando, reloj
-└── tools/
-    ├── build-and-install.sh   alternativa por línea de comandos (Tizen Studio)
-    └── smartthings-oauth.mjs  ayudante OAuth para la PS5
-```
+## Features
 
-## Configuración privada
+**Routines for the kids**
+- One column per kid, each with an emoji avatar and a progress ring. Tick tasks with **OK**.
+- The board switches from the morning routine to the evening one at a set time (14:00 by default). The **blue** button switches it by hand.
+- Tasks can be limited to certain weekdays, certain kids or a date range, such as *football bag on Tuesdays and Thursdays* or *school swimming until 18 December*.
+- Ticks are saved on the TV and reset every day. A celebration pops up when a kid finishes their list.
+- **Reading support.** Labels can be split into syllables in alternating red and blue, as recommended for children learning to read; this uses a Spanish syllabifier written for the app. There is also an optional *one order at a time* mode that shows only the current task, in big type, as an imperative.
 
-Los datos personales no van en `config.js` sino en `js/config.local.js`, que se carga justo después y lo sobrescribe:
+**Leave-the-house countdown**
+- From a start time (say, when the kids get up) until you have to leave, a bar counts down the minutes. It tells you whether you are on time, cutting it close or late.
+- It plays soft chimes at 10 and 5 minutes before leaving, at leaving time and at the hard limit.
+
+**Weather that says what to wear**
+- Shows today's forecast in the morning and tomorrow's in the evening, so the clothes can be laid out the night before.
+- Picks a garment (scarf and coat, jacket, sweatshirt or T-shirt) from the temperature at the time you leave home.
+- Adds ☔ *raincoat* when the chance of rain between 7:00 and 20:00 is high, and shows an hourly strip for 8, 11, 14, 17 and 20 h.
+- Data comes from [Open-Meteo](https://open-meteo.com), which needs no API key.
+
+**Family calendar**
+- A week view built from iCal feeds, such as an iCloud public calendar (`webcal://` links work) or Google Calendar.
+- Events with a kid's name in the title get that kid's avatar and colour. Public holidays are highlighted.
+- Today's upcoming events also appear in the **Today** card on the dashboard.
+
+**Lamp mode**
+- Turns the screen into a dim, warm light for reading on the sofa, from 1800 K to 3500 K.
+- The light can fill the screen or be a halo with a dark centre. It has a sleep timer and keeps the screensaver away.
+
+**Input switching**
+- Switch to the Apple TV, console or set-top box with the coloured buttons or 1-2-3.
+- If an input has no signal, a picker shows which HDMI ports are live, so you can fix the mapping from the sofa. The **8** key opens it at any time.
+- Optional SmartThings mode, which switches the TV's real input instead of showing it inside the app.
+
+**Built for the TV**
+- The layout is drawn at 1920×1080 and scaled to the screen.
+- The "liquid glass" look has a *lite* mode that is used automatically on the TV, so a modest TV GPU can keep up.
+- Press **7** for an on-screen FPS meter.
+
+## Screenshots
+
+| | |
+|---|---|
+| ![Evening routine with tomorrow's weather](docs/screenshots/evening.jpg) | ![Week calendar](docs/screenshots/calendar.jpg) |
+| **Evening.** The weather card shows tomorrow. | **Calendar.** Week view from iCal feeds. |
+| ![A kid finished their routine](docs/screenshots/celebration.jpg) | ![HDMI picker](docs/screenshots/hdmi-picker.jpg) |
+| **Done!** A celebration when a kid finishes. | **HDMI picker.** Live ports are marked. |
+| ![Lamp mode, halo shape](docs/screenshots/lamp.jpg) | ![Syllables in red and blue](docs/screenshots/syllables.jpg) |
+| **Lamp mode.** Warm halo for reading. | **Syllables** in alternating colours. |
+
+*All screenshots use the example configuration: made-up kids, demo calendar and simulated weather.*
+
+## Getting started (in a browser)
+
+You can try everything on your computer before touching the TV.
 
 ```sh
-cp js/config.local.example.js js/config.local.js
+git clone <this repo> casa-tv
+cd casa-tv
+cp js/config.local.example.js js/config.local.js   # your private settings (git-ignored)
+python3 -m http.server 8000
 ```
 
-Ahí van los críos, las tareas de días concretos, el enlace del calendario familiar y, si lo usas, SmartThings. El fichero está en `.gitignore`. Hay que crearlo antes de compilar: el paquete lo incluye (`tizen_web_project.yaml`).
+Open <http://localhost:8000> in Chrome with the window at 1920×1080, or let it scale. The keyboard stands in for the remote:
 
-## Probarla ya en el Mac
+| Keyboard | Remote |
+|---|---|
+| Arrow keys, Enter | D-pad, OK |
+| Esc / Backspace | Back |
+| R · G · Y · B | Red · Green · Yellow · Blue |
+| 0 · 7 · 8 · 9 | Lamp · FPS meter · HDMI picker · Calendar |
 
-Abre `index.html` en Chrome. Sin `tizen` disponible, la app simula las entradas.
-Teclado: flechas + Enter; `R`/`G`/`Y` = teclas de colores; `B` = mañana/noche; `Esc` = Atrás.
+In the browser, inputs show a *preview* instead of real HDMI video, and all ports appear connected. The weather loads for real. iCal feeds may be blocked by CORS in a desktop browser; on the TV they are not, because `config.xml` allows those origins.
 
-## Cómo se cambia de entrada
+## Install on a Samsung TV
 
-Cada entrada elige su vía con `via` en `config.js`:
+Sideloading uses Samsung's developer mode and a free Samsung certificate tied to your TV. You need a Samsung account, the computer and the TV on the same network, and about 20 minutes the first time.
 
-| | `tvwindow` (Apple TV, Euskaltel) | `smartthings` (PS5) |
-|---|---|---|
-| Qué hace | Pinta la señal HDMI a pantalla completa **dentro** de la app (API TVWindow, privilegio público) | Cambia la **entrada real** de la tele vía API cloud de SmartThings |
-| Configuración | Ninguna | App OAuth + refresh token (ver abajo) |
-| "Atrás" | Vuelve al tablero | La app ya se ha ocultado; estás en la entrada normal |
-| Riesgo | Sospecho (no verificado) que dentro de la ventana de la app la tele no aplica Modo Juego/VRR | Depende de internet (~1 s) |
+### 1. Tools
 
-Si SmartThings no está configurado o falla, la PS5 se abre dentro de la app y sale un aviso en rojo. Así funciona desde el primer día y puedes comprobar si de verdad notas diferencia antes de configurar OAuth.
+Install **VS Code** and the **Tizen TV** extension (publisher `samsungtvsdk`); it pulls in the base Tizen extension. In the Tizen sidebar, open *Package Manager* and install the latest **TV** extension, for example "10.0 TV". Tizen Studio with its Certificate Manager works too.
 
-## Instalar en la tele (VS Code)
+### 2. Developer mode on the TV
 
-Extensión oficial actual: **Tizen TV Extension** (`samsungtvsdk.tv-vscode-tizen`, publisher `samsungtvsdk`). Instala sola la extensión base de Tizen.
+1. Open **Apps** on the TV and type `1` `2` `3` `4` `5` with the remote.
+2. Turn **Developer mode** on and enter your **computer's IP address**.
+3. **Cold-reboot the TV.** Hold the remote's power button until the Samsung logo appears. A normal off/on is not enough: until you do this, the TV refuses connections on port 26101.
 
-1. **Extensión**: VS Code → Extensiones → busca "Tizen TV" → instala la de `samsungtvsdk`. En la barra de Tizen → *Packages* → *Advanced* → instala la extensión TV más reciente.
-2. **Modo desarrollador en la TV**: Apps → teclea `1 2 3 4 5` con el mando → Developer mode **On** → IP de tu Mac → reinicia la tele (mantén el botón de encendido hasta que se reinicie). Mac y TV en la misma red.
-3. **Conectar la TV**: en la extensión, *Actions* → **Connect Device** → *Remote Devices* → **+ Create Custom Connection** → nombre, IP de la tele y puerto `26101` → *Add* → selecciónala → **Connect**.
-4. **Certificado Samsung** (con la tele ya conectada, para que salga su DUID):
-   *Actions* → **Create Certificate** → nombre del perfil (p. ej. `casatv`) → **Create Samsung Certificate** → datos de autor (nombre y contraseña; guárdala) → *Distributor Details*: privilege level **Public** → marca la casilla del **DUID** de tu tele → **Create** → inicia sesión con tu cuenta Samsung cuando lo pida → comprueba que el perfil aparece en la lista.
-5. Abre la carpeta `FamilyTV`, crea `js/config.local.js` (ver *Configuración privada*), ajusta `js/config.js` y, en *Actions*, **Run Project**. Excluye `tools/` y `README.md` del paquete si la extensión lo ofrece.
-6. La primera vez, mira el pie de la app: "Con señal: HDMI 1 · HDMI 2…". El Marantz también puede aparecer; corrige los números de `config.js` si no cuadran y reinstala, o reasígnalos desde la tele con la tecla **8**.
+> Give your computer a fixed IP (a DHCP reservation in your router). If it changes, the TV stops accepting connections until you update developer mode.
 
-Errores típicos: **1010** al instalar → certificado (que sea *Samsung*, no *Tizen*, y que lleve el DUID de esta tele). **1013** al ejecutar → reintentar o reiniciar la tele.
+### 3. Connect the TV
 
-Alternativa por terminal (con Tizen Studio y su Certificate Manager): `./tools/build-and-install.sh <IP_TV> <perfil>`.
+In the Tizen extension, go to **Connect Device → Remote Devices → + Create Custom Connection**. Enter the TV's IP and port **`26101`**, then select it and press **Connect**.
 
-## SmartThings para la PS5
+### 4. Create a Samsung certificate
 
-Desde diciembre de 2024 los *Personal Access Tokens* nuevos caducan a las 24 h, así que la app usa OAuth con refresh token (que rota y guarda ella misma).
+With the TV connected, go to **Create Certificate** and choose a profile name.
 
-```bash
-npm i -g @smartthings/cli
-smartthings apps:create          # tipo "API_ONLY", scopes r:devices:* x:devices:*, redirect p.ej. https://httpbin.org/get
-node tools/smartthings-oauth.mjs url <clientId> https://httpbin.org/get
-#   → abre la URL, autoriza, copia el "code" de la respuesta
-node tools/smartthings-oauth.mjs token <clientId> <clientSecret> https://httpbin.org/get <code>
-node tools/smartthings-oauth.mjs devices <access_token>   # → deviceId de la tele
+1. Choose **Create Samsung Certificate** and fill in the author details (keep the password).
+2. Under **Distributor details**, set the privilege level to **Public** and tick your TV's **DUID**, its *unique device ID*.
+3. Press **Create** and sign in with your Samsung account when asked.
+
+The certificate only works on the TVs whose DUIDs it contains.
+
+### 5. Build and run
+
+1. Open the project folder in VS Code.
+2. Make sure `js/config.local.js` exists. The package manifest (`tizen_web_project.yaml`) lists it, so copy the example if you haven't.
+3. Press **Run Project**. The app installs, launches and appears in the TV's app list.
+
+Use **Run**, not *Debug*: the debugger slows the app down noticeably.
+
+From the terminal (Tizen Studio):
+
+```sh
+./tools/build-and-install.sh <TV_IP> <certificate_profile>
 ```
-Pega `deviceId`, `clientId`, `clientSecret` y `refreshToken` en `js/config.local.js`.
-El *secret* queda dentro del paquete instalado en tu tele: aceptable para uso doméstico, no para distribuir la app.
 
-## Adaptaciones por crío
+### Troubleshooting
 
-- `focusMode: true` — **una orden cada vez**: en lugar de la lista, una tarjeta grande con la tarea actual en imperativo ("Vístete", campo `order` de cada tarea) y, debajo, la siguiente en pequeño. Al marcar con OK aparece la siguiente con el foco ya puesto. Las hechas quedan como iconos pequeños; pulsar OK sobre uno la desmarca.
-- `syllables: true` — **sílabas en rojo y azul** sobre tarjeta clara (cada palabra empieza en rojo). `'continuous'` mantiene la alternancia entre palabras. El divisor silábico (`js/syllables.js`) cubre dígrafos, qu/gu, diptongos, hiatos y grupos consonánticos inseparables.
+| Symptom | Fix |
+|---|---|
+| `Connection refused` on 26101 | Developer mode is off, has a stale host IP, or the TV hasn't been cold-rebooted. |
+| Error **1010** when installing | Wrong certificate: it must be a *Samsung* certificate (not *Tizen*) and include this TV's DUID. |
+| Error **1013** when launching | Try again, or reboot the TV. |
+| *Working project is not set* | Pick the project as the active target in the Tizen extension. |
+| The launcher keeps showing an old icon | Uninstall the app from the TV, cold-reboot, and install again. |
+| Images missing or layout broken on the TV | The TV's browser engine is older than desktop Chrome. Test there, not only in the browser. |
 
-## Modo calendario
+## Configuration
 
-Botón **📅 Calendario** en la cabecera (o tecla **9**). Vista de la semana con el día de hoy resaltado:
-- ◀▶ semana anterior/siguiente · **OK** vuelve a esta semana · **Atrás** cierra.
-- Los eventos con el nombre de un crío en el título salen con su avatar y su color. Los festivos se resaltan.
-- Los eventos de hoy que aún no han pasado aparecen también en el widget **Hoy** del panel.
+There are two files:
 
-**Conectar el calendario familiar (iCloud)**: en el iPhone, app Calendario → *Calendarios* → ⓘ junto al calendario familiar → activa **Calendario público** → **Compartir enlace** → *Copiar*. Pega el enlace (`webcal://…`) en `calendar.feeds`, feed "Familia", de `js/config.local.js`; la app lo convierte a https.
-- Quien tenga el enlace puede ver el calendario (títulos, horas y lugares), aunque no aparece en ningún buscador. Para cortarlo, desactiva *Calendario público* (el enlace deja de funcionar).
-- Los cambios no llegan al instante: iCloud tarda un rato en publicar y la app consulta cada 15 min.
-- También vale un calendario de Google ("Dirección secreta en formato iCal").
-Mientras no haya enlace, se ven datos de ejemplo (aviso en amarillo).
+- **`js/config.js`** is public and holds the defaults. It contains example kids, a sample location and generic routines.
+- **`js/config.local.js`** is private and git-ignored. It is loaded right after `config.js` and overrides whatever it needs: your kids, your calendar link, your home location and any SmartThings credentials. Start from `js/config.local.example.js`.
 
-Detalles: se actualiza cada 15 min y guarda la última copia para funcionar sin red. Soporta eventos recurrentes (semanales, mensuales, anuales), excepciones, eventos movidos y cancelados. Las horas con zona horaria se toman como hora local de la tele.
+```js
+// js/config.local.js
+(function (c) {
+  c.calendar.feeds.unshift({ name: 'Family', url: 'webcal://pXX-caldav.icloud.com/published/2/…' });
+  c.weather.lat = 43.26; c.weather.lon = -2.93;
+  c.kids = [
+    { id: 'mikel', name: 'Mikel', avatar: '🦊', gradient: ['#64d2ff', '#0a84ff'], syllables: true }
+  ];
+  c.routines.morning.push(
+    { id: 'football', label: 'Mochila de fútbol', order: 'Prepara la mochila', icon: '⚽', days: [2, 4], kids: ['mikel'] }
+  );
+})(window.APP_CONFIG);
+```
 
-## Tiempo
+| Key | What it does |
+|---|---|
+| `sources[]` | Inputs: `name`, `hdmi` port, `via` (`'tvwindow'` or `'smartthings'`), artwork, colour key. |
+| `ui.sourcesOnBoard` | `false` (default) hides the input buttons and gives their space to the weather card. |
+| `ui.performance` | `'auto'` (lite on the TV, full in the browser), `'lite'` or `'full'`. |
+| `ui.transparency`, `ui.motion` | Glass opacity and background animation. |
+| `kids[]` | `id`, `name`, `avatar`, `gradient`, `syllables` (`true` or `'continuous'`), `focusMode`. |
+| `routines.morning` / `evening` | Tasks: `label`, `order` (imperative), `icon`, and optional `days` (0 = Sunday), `kids`, `from` and `until` (`YYYY-MM-DD`). |
+| `morningUntil` | The time the board switches from morning to evening. |
+| `departure` | Countdown: `days`, `start`, `readyBy`, `leave`, `limit`, `sound`. |
+| `weather` | `lat`, `lon`, `rainFrom` (%), `hours`, and `clothes` thresholds (`upTo` °C). |
+| `calendar.feeds[]` | iCal URLs; `holidays: true` highlights a feed's days. |
+| `smartthings` | OAuth client and device ID for real input switching (see `tools/smartthings-oauth.mjs`). |
 
-Con `ui.sourcesOnBoard: false` (por defecto) el panel no muestra los botones de entradas y su hueco lo ocupa una tarjeta grande del tiempo: icono, máxima y mínima, la prenda en grande para los críos, chubasquero si va a llover y la franja de `weather.hours` (8, 11, 14, 17 y 20 h). Las entradas se siguen cambiando con los botones de colores, 1-2-3 o la tecla 8. Con `sourcesOnBoard: true` vuelven los botones y el tiempo pasa a una pastilla en la cabecera, junto al calendario.
-- Por la mañana es el tiempo de hoy; por la noche, el de **mañana**, para dejar la ropa preparada.
-- La ropa sale de la temperatura a la hora de salir de casa (`departure.leave`), con los umbrales de `weather.clothes` en `config.js`.
-- La lluvia es la probabilidad máxima entre las 7 y las 20 h. A partir de `weather.rainFrom` (40 %) añade "☔ Chubasquero".
-- Datos de [Open-Meteo](https://open-meteo.com) (gratis, sin clave), cada 30 min. Sin red se ve la última descarga. La ubicación de casa va en `config.local.js`.
+**About the calendar link.** An iCloud or Google *public/secret* iCal link gives read access to anyone who has it. Keep it in `config.local.js`, never in `config.js`.
 
-## Modo lámpara
+## Remote control
 
-Botón **🕯️ Lámpara** en la cabecera (o tecla **0**). La pantalla se convierte en una luz cálida y tenue para leer en el salón:
-- ▲▼ intensidad (5–100 %) · ◀▶ calidez de 1800 K (vela) a 3500 K · **OK** alterna *completa* (más luz para leer) y *halo* (centro oscuro, luz en bordes: deslumbra menos).
-- **Amarillo**: temporizador 15/30/45/60 min; el último minuto se funde a negro. **Atrás**: salir.
-- Sin azul y sin parpadeo. Recuerda el último ajuste. Desactiva el salvapantallas de la tele mientras está encendida (API `webapis.appcommon`, sólo en la tele).
-- La app no puede bajar la retroiluminación de la tele: para un tenue de verdad, combina con un modo de imagen poco brillante (p. ej. *Película*) o el modo de confort visual si tu tele lo tiene.
+| Button | Action |
+|---|---|
+| ◀ ▶ ▲ ▼ · OK | Move · tick a task / open |
+| 🔴 🟢 🟡 or 1 · 2 · 3 | Switch to input 1 · 2 · 3 |
+| 🔵 | Morning ⇄ evening routine |
+| 8 | HDMI picker (reassign ports) |
+| 9 | Week calendar (◀ ▶ change week, OK this week) |
+| 0 | Lamp mode (▲▼ brightness, ◀▶ warmth, OK shape, 🟡 sleep timer) |
+| 7 | FPS meter |
+| Back | Close the overlay / stop watching an input / exit |
 
-## Cuenta atrás para salir
+## How it works
 
-Las mañanas de lunes a viernes, desde las 7:20 (luz del cuarto de los críos), una cápsula en la cabecera muestra cuánto falta para salir a las 8:30:
-- Verde → ámbar (≤20 min) → rojo (≤5 min, con segundos en los últimos 10 min y viñeta roja en los bordes).
-- 8:30–8:40: "¡A la calle!" con los minutos hasta el límite. Después de 8:40: "Llegamos tarde" y desaparece a las 9:00.
-- **Ritmo**: compara tareas hechas con el tiempo transcurrido hasta las 8:20 (`readyBy`): *Vais bien* / *Vais justos* / *Hay que darse prisa* / *¡Listos! Zapatos y abrigo*.
-- Campanitas a −10 min, −5 min, hora de salir y límite (`sound: false` para quitarlas).
-- Horas y días en `departure` dentro de `config.js`.
+```
+index.html            1920×1080 stage, scaled to the screen
+config.xml            Tizen manifest: privileges (tv.window, tv.inputdevice, internet) and allowed origins
+tizen_web_project.yaml  files that go into the .wgt package
+css/style.css         liquid-glass UI, lite mode, all layouts
+js/config.js          public defaults · js/config.local.js private overrides
+js/app.js             rendering, remote keys, focus, toasts, HDMI picker
+js/nav.js             spatial navigation by geometry (no focus map to maintain)
+js/routines.js        which tasks apply today, ticks persisted per day in localStorage
+js/syllables.js       Spanish syllabifier for the red/blue labels
+js/departure.js       countdown phases, pace and Web Audio chimes
+js/weather.js         Open-Meteo client, clothing rules, offline cache
+js/calendar.js        iCal parser (RRULE, EXDATE, RECURRENCE-ID), feeds, cache
+js/calview.js         week view
+js/lamp.js            Kelvin → RGB light, halo, sleep timer, screensaver control
+js/sources.js         input switching: TV Window API or SmartThings, HDMI discovery
+tools/                CLI install script, SmartThings OAuth helper, Blender render scripts
+```
 
-## Aspecto
+Some design decisions:
 
-Lenguaje inspirado en Liquid Glass (tvOS 26 / iOS 27): fondo vivo que cambia de amanecer a noche, paneles de cristal con desenfoque y reflejo, tiles con parallax y brillo al enfocar, anillos de progreso por crío y hoja de celebración.
+- **ES5, no build step.** Older Tizen TVs ship an old Chromium. Plain scripts run anywhere and are easy to debug on the TV.
+- **Two ways to switch inputs.**
+  - The Tizen **TV Window** API shows the HDMI signal inside the app. It is instant and needs no account, but the TV does not change its real input, so the device is not woken through HDMI-CEC.
+  - **SmartThings** changes the TV's real input, which keeps Game Mode, VRR and 120 Hz for a console. The cost is an OAuth app and a cloud round-trip.
+- **Lite mode.** Animated backgrounds behind `backdrop-filter` force the blur to be recomputed every frame, and a TV GPU can't keep up. Lite mode stops the background and keeps blur only on the large panels. In a GPU-less browser that took the app from about 12 fps to 60 fps.
+- **Private data stays out of git.** Names, calendar links and locations live only in `config.local.js`.
 
-- `ui.transparency` (0–1) hace de deslizador de cristal estilo iOS 27: 0 = casi opaco y más legible, 1 = muy transparente.
-- `ui.motion: false` apaga fondo animado y parallax si la tele va justa.
-- La maqueta es de 1920×1080 y se escala sola a la pantalla (tele, navegador del Mac, ventanas de otra proporción) sin deformarse; el fondo rellena los márgenes.
-- `avatar` de cada crío: emoji o letra dentro del anillo.
-- `art` de cada entrada: ilustración en `img/` (render 3D en PNG con transparencia, 1360×672). Puedes cambiarla por una foto tuya en PNG/JPG de 680×336 o más.
-- El desenfoque (`backdrop-filter`) es lo más caro para la GPU de la tele. Si notas tirones al moverte, baja `--blur` en `css/style.css` o desactiva `motion`.
+## Limitations
 
-## Rutinas: cómo se modelan
+- **Tested on one TV:** a 2024 Samsung QN85D. The manifest targets Tizen 3.0+ and the code avoids newer JS, but older models are untested.
+- **Inputs can't be powered on.** In TV Window mode the app shows the input but does not wake the device. A console in rest mode reports no signal.
+- **Spanish only.** The UI strings and the syllabifier are Spanish.
+- **Developer-mode install only.** This isn't a Samsung Store app, and each TV needs its DUID in your certificate.
 
-- Cada tarea: `{ id, label, icon, days?, kids? }`. Sin `days` = todos los días; sin `kids` = todos.
-- Antes de `morningUntil` se muestra la mañana; después, la noche. La tecla azul fuerza la otra franja hasta el siguiente cambio automático.
-- El estado se guarda como `routine:AAAA-MM-DD:franja`: no hay que "resetear" nada; se purgan los días de hace más de una semana.
-- La noche va como deberes → cenar → pijama → dientes → leer; cambia el orden en `config.js` si lo hacéis distinto.
+## Credits
 
-## Qué está verificado y qué no
+- [Inter](https://rsms.me/inter/) typeface by Rasmus Andersson, SIL Open Font License (see `fonts/OFL-Inter.txt`).
+- Weather data by [Open-Meteo.com](https://open-meteo.com) (CC BY 4.0).
+- Apple TV, PlayStation, Samsung, SmartThings and Tizen are trademarks of their respective owners. This project is not affiliated with or endorsed by any of them.
 
-- ✔ Probado en Chromium a 1920×1080 con mocks: navegación, marcado, persistencia, celebración, mañana/noche, Atrás, aviso de PS5 sin SmartThings.
-- ✔ Documentado por Samsung: `tizen.tvwindow.setSource/show` con privilegio público `tv.window`; extensión Tizen TV para VS Code.
-- ✘ No probado en la tele real: mapeo HDMI, audio de la TV window, Modo Juego dentro de la app y SmartThings en este modelo.
+*A Spanish version of this README, with notes from the original setup, is in [README.es.md](README.es.md).*
