@@ -1,4 +1,4 @@
-# Casa TV
+# Family TV
 
 **A family dashboard for Samsung Tizen TVs.** It turns the living-room TV into a morning-and-evening routine board for the kids, with a leave-the-house countdown, a weather card that says what to wear, the family calendar and a warm reading lamp. Your Apple TV, console and set-top box stay one button away on the remote.
 
