@@ -44,11 +44,7 @@ files:
   - js/syllables.js
   - js/weather.js
   - img/appletv-3d.png
-  - img/consola.png
   - img/ps5-3d-v2.png
-  - img/ps5-3d.png
-  - img/ps5.png
-  - img/streaming.png
   - img/tele.png
   - fonts/OFL-Inter.txt
   - fonts/inter-latin-ext-wght-normal.woff2
@@ -57,7 +53,6 @@ files:
 # list of files to exclude based on the matched patterns
 excludes:
   - _plantilla_original/*
-  - main.js
   - Build/*
   - Debug/*
   - Directory.Build.targets

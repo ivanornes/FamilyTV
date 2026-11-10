@@ -13,8 +13,5 @@ Release/
 .vscode/
 .DS_Store
 
-# Restos locales
-_plantilla_original/
-main.js
-iconOLD.png
+# Foto de referencia, no se usa en la app
 img/ps5.png
