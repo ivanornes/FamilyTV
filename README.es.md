@@ -167,3 +167,7 @@ Lenguaje inspirado en Liquid Glass (tvOS 26 / iOS 27): fondo vivo que cambia de 
 - ✔ Probado en Chromium a 1920×1080 con mocks: navegación, marcado, persistencia, celebración, mañana/noche, Atrás, aviso de PS5 sin SmartThings.
 - ✔ Documentado por Samsung: `tizen.tvwindow.setSource/show` con privilegio público `tv.window`; extensión Tizen TV para VS Code.
 - ✘ No probado en la tele real: mapeo HDMI, audio de la TV window, Modo Juego dentro de la app y SmartThings en este modelo.
+
+## Licencia
+
+[MIT](LICENSE) © 2026 Iván Ornes. La fuente Inter mantiene su propia licencia (SIL OFL 1.1).

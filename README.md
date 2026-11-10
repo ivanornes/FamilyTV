@@ -19,6 +19,7 @@
 - [How it works](#how-it-works)
 - [Limitations](#limitations)
 - [Credits](#credits)
+- [License](#license)
 
 ## Features
 
@@ -240,5 +241,9 @@ Some design decisions:
 - [Inter](https://rsms.me/inter/) typeface by Rasmus Andersson, SIL Open Font License (see `fonts/OFL-Inter.txt`).
 - Weather data by [Open-Meteo.com](https://open-meteo.com) (CC BY 4.0).
 - Apple TV, PlayStation, Samsung, SmartThings and Tizen are trademarks of their respective owners. This project is not affiliated with or endorsed by any of them.
+
+## License
+
+[MIT](LICENSE) © 2026 Iván Ornes. The Inter font keeps its own license (SIL OFL 1.1).
 
 *A Spanish version of this README, with notes from the original setup, is in [README.es.md](README.es.md).*
